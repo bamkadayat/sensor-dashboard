@@ -69,9 +69,6 @@ function App() {
 
           <ConnectionBadge status={connectionStatus} />
         </div>
-
-        {/* Subtle scan line under header */}
-        <div className="scan-underline mt-5 h-px w-full" />
       </header>
 
       {/* ── Summary strip ── */}
@@ -80,7 +77,7 @@ function App() {
       </div>
 
       {/* ── Filters ── */}
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-3 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-3">
         <StatusFilterBar
           current={filter}
           onChange={setFilter}
@@ -117,10 +114,10 @@ function App() {
 
 function LiveBadge() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded border border-red-500/40 bg-red-500/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-red-300 shadow-[0_0_12px_-2px_rgba(239,68,68,0.5)]">
+    <span className="inline-flex items-center gap-1.5 rounded border border-emerald-400/40 bg-emerald-400/15 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-200 shadow-[0_0_12px_-2px_rgba(52,211,153,0.5)]">
       <span className="relative flex h-1.5 w-1.5">
-        <span className="ping-slow absolute inset-0 rounded-full bg-red-400 opacity-75" />
-        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-red-400" />
+        <span className="ping-slow absolute inset-0 rounded-full bg-emerald-400 opacity-75" />
+        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
       </span>
       Live
     </span>

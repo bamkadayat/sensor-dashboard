@@ -48,9 +48,9 @@ export function SummaryBar({ counts, lastEvent }: Props) {
       {METRICS.map(({ key, label, dot, text, ring }) => (
         <div
           key={key}
-          className={`metric-card surface flex items-center gap-3 rounded-xl px-4 py-3 ${ring}`}
+          className={`metric-card surface flex items-center gap-3 rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 ${ring}`}
         >
-          <span className="relative flex h-2.5 w-2.5">
+          <span className="relative flex h-2.5 w-2.5 shrink-0">
             <span
               className={`absolute inset-0 rounded-full ${dot} opacity-40 blur-[3px]`}
             />
@@ -63,7 +63,7 @@ export function SummaryBar({ counts, lastEvent }: Props) {
               {label}
             </span>
             <span
-              className={`font-mono-data text-2xl font-bold leading-none ${text}`}
+              className={`font-mono-data text-xl font-bold leading-none sm:text-2xl ${text}`}
             >
               {counts[key].toString().padStart(2, "0")}
             </span>
@@ -71,8 +71,8 @@ export function SummaryBar({ counts, lastEvent }: Props) {
         </div>
       ))}
 
-      {/* Last stream event timestamp */}
-      <div className="metric-card surface flex min-w-[180px] items-center justify-between gap-3 rounded-xl px-4 py-3 lg:flex-col lg:items-start lg:justify-center">
+      {/* Last stream event timestamp — full width on mobile/sm, compact on lg */}
+      <div className="metric-card surface col-span-2 flex items-center justify-between gap-3 rounded-xl px-4 py-2.5 sm:col-span-4 sm:py-3 lg:col-span-1 lg:min-w-[180px] lg:flex-col lg:items-start lg:justify-center">
         <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-500">
           Last event
         </span>

@@ -33,7 +33,7 @@ interface Props {
 
 export function StatusFilterBar({ current, onChange, counts }: Props) {
   return (
-    <div className="surface-inset inline-flex rounded-xl p-1">
+    <div className="surface-inset flex max-w-full flex-wrap gap-0.5 rounded-xl p-1">
       {OPTIONS.map(({ value, label, accent }) => {
         const active = current === value;
         return (

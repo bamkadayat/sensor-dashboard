@@ -15,7 +15,9 @@ export function SensorTableSkeleton() {
               <th className="px-3 py-3">State</th>
               <th className="px-3 py-3 text-right">Value</th>
               <th className="px-3 py-3 text-right">Delta</th>
-              <th className="px-3 py-3 text-right">Trend</th>
+              <th className="hidden px-3 py-3 text-right md:table-cell">
+                Trend
+              </th>
               <th className="px-3 py-3 pr-5 text-right">Updated</th>
             </tr>
           </thead>
@@ -57,8 +59,8 @@ export function SensorTableSkeleton() {
                   </div>
                 </td>
 
-                {/* Trend (right) — same size as real Sparkline (110x32) */}
-                <td className="px-3 py-3">
+                {/* Trend — hidden on narrow screens to match the live table */}
+                <td className="hidden px-3 py-3 md:table-cell">
                   <div className="flex justify-end">
                     <div
                       className="skeleton"

@@ -130,8 +130,8 @@ export const SensorRow = memo(function SensorRow({
         )}
       </td>
 
-      {/* Trend */}
-      <td className="px-3 py-3 text-right">
+      {/* Trend — hidden on narrow screens; Value + arrow already communicate direction */}
+      <td className="hidden px-3 py-3 text-right md:table-cell">
         <div className="ml-auto inline-block">
           <Sparkline data={sensor.history} />
         </div>
