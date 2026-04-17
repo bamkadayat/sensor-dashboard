@@ -27,7 +27,9 @@ export function SensorTable({ sensors, recentlyUpdatedIds }: Props) {
               <th className="px-3 py-3">State</th>
               <th className="px-3 py-3 text-right">Value</th>
               <th className="px-3 py-3 text-right">Delta</th>
-              <th className="px-3 py-3 text-right">Trend</th>
+              <th className="hidden px-3 py-3 text-right md:table-cell">
+                Trend
+              </th>
               <th className="px-3 py-3 pr-5 text-right">Updated</th>
             </tr>
           </thead>

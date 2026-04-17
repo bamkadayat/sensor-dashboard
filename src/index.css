@@ -140,16 +140,6 @@ body::before {
   transform: translateY(-1px);
 }
 
-/* ── Scan-line accent for the header title ── */
-.scan-underline {
-  background-image: linear-gradient(
-    90deg,
-    transparent,
-    rgba(56, 189, 248, 0.6),
-    transparent
-  );
-}
-
 /* ── Skeleton shimmer ── */
 @keyframes shimmer {
   0% {
