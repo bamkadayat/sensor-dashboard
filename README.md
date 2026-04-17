@@ -1,73 +1,77 @@
-# React + TypeScript + Vite
+# Sensor Monitor
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A real-time monitoring dashboard that renders live market data as operator-style "sensor" rows. Prices, deltas, and trend sparklines update in place from a WebSocket feed, with a dark control-room aesthetic.
 
-Currently, two official plugins are available:
+The data source is the **Binance public API** — each row corresponds to a trading pair. The app is structured so the UI is data-source agnostic: any real-time numeric feed could replace Binance without touching components.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Stack
 
-## React Compiler
+- **React 19** + **TypeScript** + **Vite**
+- **Tailwind CSS v4** (via `@tailwindcss/vite`)
+- **@tanstack/react-query** — snapshot cache, mutated live by WS
+- **axios** — REST calls with request/response interceptors
+- Native `WebSocket` — no library needed
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app runs on Vite's default port (5173, or the next free one). Open the URL printed in the terminal.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Commands
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Command           | What it does                                |
+| ----------------- | ------------------------------------------- |
+| `npm run dev`     | Start the dev server with HMR               |
+| `npm run build`   | Type-check (`tsc -b`) and build for production |
+| `npm run lint`    | Run ESLint across the project               |
+| `npm run preview` | Preview the production build locally        |
+
+## Architecture
+
+**Data flow**
+
+1. On mount, `useSensors` (in `src/hooks/`) fetches the initial snapshot from Binance's `/api/v3/ticker/24hr` endpoint. React Query caches the result under the key `["sensors"]` with `staleTime: Infinity` — there is no polling or refetch.
+2. A combined Binance WebSocket stream is opened (`src/services/sensorWebSocket.ts`). Each incoming tick is pushed directly into the React Query cache via `queryClient.setQueryData`. From that point on, the WebSocket is the source of truth.
+3. Each update also appends the new price to a rolling `history: number[]` array on the sensor (capped at 60 points) which drives the per-row sparkline.
+
+**Key files**
+
 ```
+src/
+├── App.tsx                     # Layout shell: header, summary, filter, table
+├── main.tsx                    # QueryClientProvider + StrictMode root
+├── index.css                   # Tailwind + surfaces, shimmer, pop keyframes
+├── hooks/
+│   └── useSensors.ts           # Orchestrator: query + WS + filter
+├── services/
+│   ├── http.ts                 # Shared axios instance + interceptors
+│   ├── sensorApi.ts            # SYMBOLS, NAMES, deriveStatus, fetchSensors
+│   └── sensorWebSocket.ts      # Binance combined stream client
+├── components/
+│   ├── ConnectionBadge.tsx
+│   ├── SummaryBar.tsx
+│   ├── StatusFilterBar.tsx
+│   ├── SensorTable.tsx
+│   ├── SensorTableSkeleton.tsx
+│   ├── SensorRow.tsx
+│   └── Sparkline.tsx           # Zero-dep SVG sparkline
+└── types/
+    └── sensor.ts               # Sensor + SensorStatus types
+```
+
+**Conventions**
+
+- `SYMBOLS` in `services/sensorApi.ts` is the single source of truth for both the REST fetch and the WebSocket subscription. Adding or removing a symbol propagates to both automatically.
+- Severity thresholds (`CRITICAL_CHANGE_PCT`, `WARNING_CHANGE_PCT`) and the `deriveStatus` function live in `sensorApi.ts` and are imported wherever needed — don't duplicate.
+- REST calls go through `services/http.ts`. The response interceptor normalizes failures to `Error(message)` so call sites don't need to pattern-match on the axios error shape.
+- The WS client defers its initial `connect()` by a microtask so React StrictMode's synchronous double-mount in dev doesn't trigger the "WebSocket is closed before the connection is established" warning.
+
+## Notes
+
+- Sparkline history is in-memory only; a page reload resets it.
+- Styling is dark-theme first — see the `.surface` / `.surface-inset` utility classes in `index.css` for the paneled console look.
+- No test suite is configured.
